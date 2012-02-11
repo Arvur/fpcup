@@ -89,6 +89,12 @@ begin
   writeln('                       configuration path for the Lazarus it installs/updates.');
   writeln('                       Default: empty; then a OS dependent configuration');
   writeln('                       directory is used.');
+  writeln(' fpcuplinkname=<name>  Name of the shortcut to the fpcup script.');
+  writeln('                       On Windows: a desktop shortcut.');
+  writeln('                       On other systems: a shell file in your home directory.');
+  writeln('                       If not specified, no shortcut will be produced.');
+  writeln('                       If empty specified, the shortcut will be ');
+  writeln('                       lazlinkname(Update).');
   writeln('');
 end;
 
@@ -103,15 +109,19 @@ const
   Help='help';
   LazDir='lazdir';
   LazLinkName='lazlinkname';
+  FpcupLinkName='fpcuplinkname';
   LazURL='lazURL';
   LazOPT='lazOPT';
   PrimaryConfigPath='primary-config-path';
 var
   ErrorMessage: string;
+  i:integer;
+  alloptions,fpcuplink:string;
 begin
 // Default values
 
   FInstaller.ShortCutName:='Lazarus (trunk)';
+  //don't initialise ShortCutNameFpcup !!!
   FInstaller.FPCURL := 'http://svn.freepascal.org/svn/fpc/branches/fixes_2_6';
   FInstaller.FPCOPT:='';
   FInstaller.LazarusPrimaryConfigPath:=''; //Let installer figure out default value
@@ -134,7 +144,7 @@ begin
   ErrorMessage := Application.CheckOptions(
     'h', Binutilsdir+': '+FPCBootstrapDir+': '+FPCDir+': '+FPCURL+': '+FPCOPT+': '+
     Help+' '+LazDir+': '+LazOPT+': '+
-    LazLinkName+': '+LazURL+':'+PrimaryConfigPath+':');
+    LazLinkName+': '+FpcupLinkName+': '+LazURL+':'+PrimaryConfigPath+':');
   if Length(ErrorMessage) > 0 then
   begin
     writeln('Error: wrong command line options given:');
@@ -144,9 +154,12 @@ begin
     halt(13); //Quit with error resultcode
   end;
 
+  alloptions:='';
+
   if Application.HasOption(BinutilsDir) then
   begin
     FInstaller.MakeDirectory:=Application.GetOptionValue(BinutilsDir);
+    alloptions:=alloptions+BinutilsDir+'="'+FInstaller.MakeDirectory+'" ';
     {$IFNDEF MSWINDOWS}
     writeln('The '+BinutilsDir+' parameter is not necessary or supported on this system.');
     writeln('The parameter will be ignored.');
@@ -157,21 +170,25 @@ begin
   if Application.HasOption(FPCBootstrapDir) then
   begin
     FInstaller.BootstrapCompilerDirectory:=Application.GetOptionValue(FPCBootstrapDir);
+    alloptions:=alloptions+'--'+FPCBootstrapDir+'="'+FInstaller.BootstrapCompilerDirectory+'" ';
   end;
 
   if Application.HasOption(FPCDir) then
   begin
     FInstaller.FPCDirectory:=Application.GetOptionValue(FPCDir);
+    alloptions:=alloptions+'--'+FPCDir+'="'+FInstaller.FPCDirectory+'" ';
   end;
 
   if Application.HasOption(FPCOPT) then
   begin
-    FInstaller.FPCOPT:=Application.GetOptionValue(FPCOPT)
+    FInstaller.FPCOPT:=Application.GetOptionValue(FPCOPT);
+    alloptions:=alloptions+'--'+FPCOPT+'="'+FInstaller.FPCOPT+'" ';
   end;
 
   if Application.HasOption(FPCURL) then
   begin
     FInstaller.FPCURL:=Application.GetOptionValue(FPCURL);
+    alloptions:=alloptions+'--'+FPCURL+'="'+FInstaller.FPCURL+'" ';
   end;
 
   if Application.HasOption('h', Help) then
@@ -184,21 +201,25 @@ begin
   if Application.HasOption(LazDir) then
   begin
     FInstaller.LazarusDirectory:=Application.GetOptionValue(LazDir);
+    alloptions:=alloptions+'--'+LazDir+'="'+FInstaller.LazarusDirectory+'" ';
   end;
 
   if Application.HasOption(LazLinkName) then
   begin
     FInstaller.ShortCutName:=Application.GetOptionValue(LazLinkName);
+    alloptions:=alloptions+'--'+LazLinkName+'="'+FInstaller.ShortCutName+'" ';
   end;
 
   if Application.HasOption(LazOPT) then
   begin
-    FInstaller.LazarusOPT:=Application.GetOptionValue(LazOPT)
+    FInstaller.LazarusOPT:=Application.GetOptionValue(LazOPT);
+    alloptions:=alloptions+'--'+LazOPT+'="'+FInstaller.LazarusOPT+'" ';
   end;
 
   if Application.HasOption(LazURL) then
   begin
     FInstaller.LazarusDirectory:=Application.GetOptionValue(LazURL);
+    alloptions:=alloptions+'--'+LazURL+'="'+FInstaller.LazarusDirectory+'" ';
   end;
 
   if Application.HasOption(PrimaryConfigPath) then
@@ -208,12 +229,29 @@ begin
     begin
       FInstaller.LazarusPrimaryConfigPath:=Application.GetOptionValue(PrimaryConfigPath);
     end;
+    alloptions:=alloptions+'--'+PrimaryConfigPath+'="'+Application.GetOptionValue(PrimaryConfigPath)+'" ';
+  end;
+
+  fpcuplink:='';
+  if Application.HasOption(FpcupLinkName) then
+  begin
+    fpcuplink:=Application.GetOptionValue(FpcupLinkName);
+    alloptions:=alloptions+'--'+FpcupLinkName+'="'+fpcuplink+'" ';
+    FInstaller.AllOptions:=alloptions;
+    if fpcuplink='' then
+      if FInstaller.ShortCutName='' then
+        fpcuplink:='fpcup'
+      else
+        fpcuplink:=FInstaller.ShortCutName+'(Update)';
+    FInstaller.ShortCutNameFpcup:=fpcuplink;
   end;
 
   writeln('');
   writeln('Options:');
   writeln('Bootstrap compiler dir: '+FInstaller.BootstrapCompilerDirectory);
   writeln('Shortcut name:          '+FInstaller.ShortCutName);
+  if fpcuplink<>'' then
+    writeln('Shortcut fpcup name:    '+FInstaller.ShortCutNameFpcup);
   writeln('FPC URL:                '+FInstaller.FPCURL);
   writeln('FPC options:            '+FInstaller.FPCOPT);
   writeln('FPC directory:          '+FInstaller.FPCDirectory);
@@ -222,6 +260,7 @@ begin
   writeln('(Lazarus settings path) '+FInstaller.LazarusPrimaryConfigPath);
   writeln('Lazarus URL:            '+FInstaller.LazarusURL);
   writeln('Lazarus options:        '+FInstaller.LazarusOPT);
+  writeln('All options:        '+FInstaller.AllOptions);
   {$IFDEF MSWINDOWS}
   writeln('Make/binutils path:     '+FInstaller.MakeDirectory);
   {$ENDIF MSWINDOWS}

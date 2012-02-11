@@ -44,6 +44,7 @@ type
   { TInstaller }
   TInstaller = class(TObject)
   private
+    FAllOptions: string;
     FBinUtils: TStringlist; //binutils such as make.exe, as.exe, needed for compilation
     FBunzip2: string; //Location or name of bunzip2 executable
     FBootstrapCompilerDirectory: string;
@@ -59,9 +60,11 @@ type
     FInstalledLazarus: string; //Path to installed Lazarus; used in creating shortcuts
     FLazarusPrimaryConfigPath: string;
     FMake: string;
+    FShortCutNameFpcup: string;
     {$IFDEF MSWINDOWS}
     FMakeDir: string;
     {$ENDIF}
+    FShortCutNameFpcupIsSet:boolean; //indicates if ShortCutNameFpcupSet was set
     //todo: check if we shouldn't rather use FSVNExecutable, extract dir from that.
     FSVNDirectory: string; //Unpack SVN files in this directory. Actual SVN exe may be below this directory.
     FTar: string; //Location or name of tar executable
@@ -81,7 +84,9 @@ type
     //Checks for binutils, svn.exe and downloads if needed. Returns true if all prereqs are met.
     function GetFpcDirectory: string;
     function GetFPCUrl: string;
+    procedure SetAllOptions(AValue: string);
     procedure SetLazarusPrimaryConfigPath(AValue: string);
+    procedure SetShortCutNameFpcup(AValue: string);
     function Which(Executable: string): string; //Runs which command. Returns full path of executable, if it exists
     function GetLazarusDirectory: string;
     function GetLazarusUrl: string;
@@ -103,8 +108,10 @@ type
     {$ENDIF UNIX}
   public
     property ShortCutName: string read FShortcutName write FShortcutName; //Name of the shortcut to Lazarus. If empty, no shortcut is generated.
+    property ShortCutNameFpcup:string read FShortCutNameFpcup write SetShortCutNameFpcup;
     property CompilerName: string read FCompilerName;
     //Full path to FPC compiler that is installed by this program
+    property AllOptions:string read FAllOptions write SetAllOptions;
     property BootstrapCompiler: string read GetBootstrapCompiler;
     //Full path to FPC compiler used to compile the downloaded FPC compiler sources
     property BootstrapCompilerDirectory: string
@@ -924,6 +931,12 @@ begin
   Result := FUpdater.FPCURL;
 end;
 
+procedure TInstaller.SetAllOptions(AValue: string);
+begin
+  if FAllOptions=AValue then Exit;
+  FAllOptions:=AValue;
+end;
+
 function Tinstaller.GetLazarusDirectory: string;
 begin
   Result := FUpdater.LazarusDirectory;
@@ -1112,6 +1125,13 @@ begin
   begin
     FLazarusPrimaryConfigPath:=AValue;
   end;
+end;
+
+procedure TInstaller.SetShortCutNameFpcup(AValue: string);
+begin
+  FShortCutNameFpcupIsSet:=true;
+  if FShortCutNameFpcup=AValue then Exit;
+  FShortCutNameFpcup:=AValue;
 end;
 
 procedure TInstaller.SetLazarusUrl(AValue: string);
@@ -1611,6 +1631,7 @@ begin
         //Create shortcut; we don't care very much if it fails=>don't mess with OperationSucceeded
         //DO pass quotes here (it's not TProcess.Params)
         CreateDesktopShortCut(FInstalledLazarus,'--pcp="'+FLazarusPrimaryConfigPath+'"',ShortCutName);
+        CreateDesktopShortCut(paramstr(0),AllOptions,ShortCutNameFpcup);
       finally
         //Ignore problems creating shortcut
       end;
@@ -1624,6 +1645,7 @@ begin
         //Create shortcut; we don't care very much if it fails=>don't mess with OperationSucceeded
         //DO pass quotes here (it's not TProcess.Params)
         CreateHomeStartLink(FInstalledLazarus,'--pcp="'+FLazarusPrimaryConfigPath+'"',ShortcutName);
+        CreateHomeStartLink(paramstr(0),AllOptions,ShortCutNameFpcup);
       finally
         //Ignore problems creating shortcut
       end;
@@ -1640,7 +1662,7 @@ begin
   // This won't exist so the CheckAndGetNeededExecutables code will download it for us.
   // User can specify an existing compiler later on, if she wants to.
   FBootstrapCompilerDirectory := SysUtils.GetTempDir;
-
+  FShortCutNameFpcupIsSet:=false;
   //Bootstrap compiler:
   {$IFDEF MSWINDOWS}
   // On Windows, we can always compile 32 bit with a 64 bit cross compiler, regardless
