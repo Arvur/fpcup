@@ -34,6 +34,7 @@
           <PathDelim Value="\"/>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
+            <OtherUnitFiles Value="synapse"/>
           </SearchPaths>
           <CodeGeneration>
             <SmartLinkUnit Value="True"/>
@@ -81,7 +82,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="7">
+    <Units Count="6">
       <Unit0>
         <Filename Value="fpcup.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -103,20 +104,15 @@
         <UnitName Value="svnclient"/>
       </Unit3>
       <Unit4>
+        <Filename Value="synapse\httpsend.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="httpsend"/>
+      </Unit4>
+      <Unit5>
         <Filename Value="updatelazconfig.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="updatelazconfig"/>
-      </Unit4>
-      <Unit5>
-        <Filename Value="httpsend.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="httpsend"/>
       </Unit5>
-      <Unit6>
-        <Filename Value="ftpsend.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="ftpsend"/>
-      </Unit6>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -124,6 +120,7 @@
     <PathDelim Value="\"/>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
+      <OtherUnitFiles Value="synapse"/>
     </SearchPaths>
     <CodeGeneration>
       <Checks>
