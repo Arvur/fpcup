@@ -184,20 +184,6 @@ begin
     alloptions:=alloptions+'--'+FPCOPT+'="'+FInstaller.FPCOPT+'" ';
   end;
 
-  fpcuplink:='';
-  if Application.HasOption(FpcupLinkName) then
-  begin
-    fpcuplink:=Application.GetOptionValue(FpcupLinkName);
-    alloptions:=alloptions+'--'+FpcupLinkName+'="'+fpcuplink+'" ';
-    FInstaller.AllOptions:=alloptions;
-    if fpcuplink='' then
-      if FInstaller.ShortCutName='' then
-        fpcuplink:='fpcup_update'
-      else
-        fpcuplink:=FInstaller.ShortCutName+'_update';
-    FInstaller.ShortCutNameFpcup:=fpcuplink;
-  end;
-
   if Application.HasOption(FPCURL) then
   begin
     FInstaller.FPCURL:=Application.GetOptionValue(FPCURL);
@@ -245,6 +231,24 @@ begin
     alloptions:=alloptions+'--'+PrimaryConfigPath+'="'+Application.GetOptionValue(PrimaryConfigPath)+'" ';
   end;
 
+  // FpcupLinkName has to be the last since here we store alloptions !!
+  // alloptions is rebuild in this clumsy way because we lost the quotes in paramstr()
+  // and need them for option sequences, weird paths, etc.
+
+  fpcuplink:='';
+  if Application.HasOption(FpcupLinkName) then
+  begin
+    fpcuplink:=Application.GetOptionValue(FpcupLinkName);
+    alloptions:=alloptions+'--'+FpcupLinkName+'="'+fpcuplink+'" ';
+    FInstaller.AllOptions:=alloptions;
+    if fpcuplink='' then
+      if FInstaller.ShortCutName='' then
+        fpcuplink:='fpcup_update'
+      else
+        fpcuplink:=FInstaller.ShortCutName+'_update';
+    FInstaller.ShortCutNameFpcup:=fpcuplink;
+  end;
+
   writeln('');
   writeln('Options:');
   writeln('Bootstrap compiler dir: '+FInstaller.BootstrapCompilerDirectory);
@@ -259,7 +263,7 @@ begin
   writeln('(Lazarus settings path) '+FInstaller.LazarusPrimaryConfigPath);
   writeln('Lazarus URL:            '+FInstaller.LazarusURL);
   writeln('Lazarus options:        '+FInstaller.LazarusOPT);
-  writeln('All options:        '+FInstaller.AllOptions);
+  writeln('Parameter list:         '+FInstaller.AllOptions);
   {$IFDEF MSWINDOWS}
   writeln('Make/binutils path:     '+FInstaller.MakeDirectory);
   {$ENDIF MSWINDOWS}
@@ -315,4 +319,4 @@ begin
   end;
   writeln('FPCUp finished.');
 end.
-
+
