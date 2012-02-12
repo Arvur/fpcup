@@ -47,15 +47,16 @@ type
     FAllOptions: string;
     FBinUtils: TStringlist; //binutils such as make.exe, as.exe, needed for compilation
     FBunzip2: string; //Location or name of bunzip2 executable
-    FBootstrapCompilerDirectory: string;
+    FBootstrapCompilerDirectory: string; //Directory where bootstrap compiler is
     FBootstrapCompilerFTP: string;
-    FCompilerName: string; //Platform specific compiler name (e.g. ppc386.exe for Windows)
+    FBootstrapCompilerName: string; //OS specific compiler name (e.g. ppcuniversal for OSX)
     FFPCOPT: string;
     FLazarusOPT: string;
     FShortcutName: string; //Name for shortcut/shell script pointing to newly installed Lazarus
     FExecutableExtension: string; //.exe on Windows
     FFPCPlatform: string; //Identification for platform in compiler path (e.g. i386-win32)
     FInstalledCompiler: string; //Path to installed FPC compiler; used to compile Lazarus
+    FInstalledCompilerName: string; //Name only of installed PPC compiler (e.g. ppcx64 on 64 bit Intel OSX)
     FInstalledCrossCompiler: string; //Path to an optional cross compiler that we installed (also used for Lazarus)
     FInstalledLazarus: string; //Path to installed Lazarus; used in creating shortcuts
     FLazarusPrimaryConfigPath: string;
@@ -83,6 +84,7 @@ type
     function CheckAndGetNeededExecutables: boolean;
     function FindSVNSubDirs(): boolean;
     function GetBootstrapCompiler: string;
+    function GetCompiler: string;
     //Checks for binutils, svn.exe and downloads if needed. Returns true if all prereqs are met.
     function GetFpcDirectory: string;
     function GetFPCRevision: string;
@@ -117,8 +119,8 @@ type
   public
     property ShortCutName: string read FShortcutName write FShortcutName; //Name of the shortcut to Lazarus. If empty, no shortcut is generated.
     property ShortCutNameFpcup:string read FShortCutNameFpcup write SetShortCutNameFpcup;
-    property CompilerName: string read FCompilerName;
-    //Full path to FPC compiler that is installed by this program
+    property CompilerName: string read GetCompiler;
+    //Name only of installed compiler
     property AllOptions:string read FAllOptions write SetAllOptions;
     property BootstrapCompiler: string read GetBootstrapCompiler;
     //Full path to FPC compiler used to compile the downloaded FPC compiler sources
@@ -390,7 +392,7 @@ begin
     finally
       Params.Free;
     end;
-    // Move compiler to proper directory
+    // Move CompilerName to proper directory
     if OperationSucceeded = True then
     begin
       infoln('Going to rename/move ' + ArchiveDir + CompilerName + ' to ' + BootstrapCompiler);
@@ -660,7 +662,7 @@ var
   ResultCode: longint;
 begin
   OperationSucceeded := True;
-  // The extractors used depend on the bootstrap compiler URL/file we download
+  // The extractors used depend on the bootstrap CompilerName URL/file we download
   // todo: adapt extractor based on URL that's being passed (low priority as these will be pretty stable)
   {$IFDEF MSWINDOWS}
   // Need to do it here so we can pick up make path.
@@ -822,7 +824,7 @@ begin
 
   if OperationSucceeded then
   begin
-    // Check for proper FPC bootstrap compiler
+    // Check for proper FPC bootstrap CompilerName
     infoln('Checking for FPC bootstrap compiler...');
     try
       Output := '';
@@ -844,7 +846,7 @@ begin
         end
         else
         begin
-          //valid FPC compiler
+          //valid FPC CompilerName
           infoln('Found valid FPC bootstrap compiler.');
           OperationSucceeded:=true;
         end;
@@ -863,7 +865,7 @@ begin
         OperationSucceeded := False;
       end;
     end;
-    // Still within bootstrap compiler test...
+    // Still within bootstrap CompilerName test...
     if OperationSucceeded=false then
     begin
       infoln('Bootstrap compiler not found or not a proper FPC compiler; downloading.');
@@ -902,6 +904,15 @@ end;
 function TInstaller.GetBootstrapCompiler: string;
 begin
   Result := BootstrapCompilerDirectory + CompilerName;
+end;
+
+function TInstaller.GetCompiler: string;
+begin
+  // Return installed CompilerName or bootstrap CompilerName as fallback
+  if FInstalledCompiler<>EmptyStr then
+    result:=FInstalledCompiler
+  else
+    result:=BootstrapCompiler;
 end;
 
 function TInstaller.Which(Executable: string): string;
@@ -1191,7 +1202,7 @@ end;
 
 function Tinstaller.GetFPC: boolean;
 var
-  BinPath: string; //Path where installed compiler ends up
+  BinPath: string; //Path where installed CompilerName ends up
   Executable: string;
   FileCounter:integer;
   FPCCfg: string;
@@ -1215,7 +1226,7 @@ begin
 
   if OperationSucceeded then
   begin
-    // Make clean using bootstrap compiler
+    // Make clean using bootstrap CompilerName
     // Note no error on failure, might be recoverable
     Executable := FMake;
     Params:=TStringList.Create;
@@ -1240,7 +1251,7 @@ begin
 
   if OperationSucceeded then
   begin
-    // Make all using bootstrap compiler
+    // Make all using bootstrap CompilerName
     Executable := FMake;
     Params:=TStringList.Create;
     try
@@ -1265,7 +1276,7 @@ begin
 
   if OperationSucceeded then
   begin
-    // Install, still using bootstrap compiler. //todo: go back to installed compiler
+    // Install, still using bootstrap CompilerName. //todo: go back to installed CompilerName
     Executable := FMake;
     Params:=TStringList.Create;
     try
@@ -1290,7 +1301,7 @@ begin
     end;
   end;
 
-  // Let everyone know of our shiny new compiler:
+  // Let everyone know of our shiny new CompilerName:
   if OperationSucceeded then
   begin
     SetCompilerToInstalledCompiler;
@@ -1303,7 +1314,7 @@ begin
   {$IFDEF MSWINDOWS}
   if OperationSucceeded then
   begin
-    //Copy over binutils to new compiler bin directory
+    //Copy over binutils to new CompilerName bin directory
     try
       for FileCounter:=0 to FBinUtils.Count-1 do
       begin
@@ -1325,7 +1336,7 @@ begin
   {$IFDEF MSWINDOWS}
   if OperationSucceeded then
   begin
-    // Make crosscompiler using new compiler- todo: check out what cross compilers we can install on Linux/OSX
+    // Make crosscompiler using new CompilerName- todo: check out what cross compilers we can install on Linux/OSX
     // Note: consider this as an optional item, so don't fail the function if this breaks.
     Executable := FMake;
     infoln('Running Make all (FPC crosscompiler):');
@@ -1333,7 +1344,7 @@ begin
     try
       //Don't call parameters with quotes
       Params.Add('FPC='+FInstalledCompiler+'');
-      //Should not be needed as we already copied binutils to fpc compiler dir
+      //Should not be needed as we already copied binutils to fpc CompilerName dir
       //Params.Add('CROSSBINDIR='+FBinutilsDirNoBackslash+''); //Show make where to find the binutils; TODO: perhaps replace with 64 bit version?
       Params.Add('--directory='+ ExcludeTrailingPathDelimiter(FPCDirectory));
       Params.Add('INSTALL_PREFIX='+ExcludeTrailingPathDelimiter(FPCDirectory));
@@ -1346,7 +1357,7 @@ begin
       Params.Add('all');
       if Run(Executable, Params) = 0 then
       begin
-        // Install crosscompiler using new compiler - todo: only for Windows!?!?
+        // Install crosscompiler using new CompilerName - todo: only for Windows!?!?
         // make all and make crossinstall perhaps equivalent to
         // make all install CROSSCOMPILE=1??? todo: find out
         Executable := FMake;
@@ -1354,7 +1365,7 @@ begin
         // Params already assigned
         Params.Clear;
         Params.Add('FPC='+FInstalledCompiler+'');
-        //Should not be needed as we already copied binutils to fpc compiler dir
+        //Should not be needed as we already copied binutils to fpc CompilerName dir
         //Params.Add('CROSSBINDIR='+FBinutilsDirNoBackslash+''); //Show make where to find the binutils; TODO: perhaps replace with 64 bit version?
         Params.Add('--directory='+ ExcludeTrailingPathDelimiter(FPCDirectory));
         Params.Add('INSTALL_PREFIX='+ExcludeTrailingPathDelimiter(FPCDirectory));
@@ -1424,21 +1435,27 @@ begin
       writeln(Script,'# This script starts the fpc compiler installed by fpcup');
       writeln(Script,'# and ignores any system-wide fpc.cfg files');
       write(Script,IncludeTrailingPathDelimiter(FPCDirectory),'compiler/');
-      //todo: replace this perhaps with FCompilerName, or with fpc, at least use variables here instead of directly doing write
-      {$IFDEF CPU386}
-        //OSX intel picks up on this...
-        {$IFDEF DARWIN}
-        write(Script,'ppcx64'); //Assume here all Intel Macs are x64... which I think is not true...
-        {$ELSE}
-        write(Script,'ppc386');
-        {$ENDIF DARWIN}
-      {$ELSE} //not i386
-        {$IFDEF CPUARMEL}
-        write(Script,'ppcarm');
-        {$ELSE} // Assume x64 (could also be PowerPC, other ARM I suppose)
+
+      {$IFDEF DARWIN}
+      // OSX
+      // If compiled as 32 bit, CPU386 will be true.
+      // However, bootstrap compiler will compile ppcx64 if 64 bit kernel running,
+      // ppc386 if 32 bit kernel running.
+      // We assume people want x64; in future we might have to use an extra --32bit option
+      // or different bitness versions of fpcup that set up links differently.
+      // Note: in either case we might need to instruct the make process to deviate from kernel bitness.
         write(Script,'ppcx64');
-        {$ENDIF CPUARMEL}          
-      {$ENDIF CPU386}
+      {$ELSE} //not OSX
+        {$IFDEF CPU386}
+          write(Script,'ppc386'); //fpcup was compiled on i386, but might be running on x64 hardware!!
+        {$ELSE} //not i386
+          {$IFDEF CPUARMEL}
+          write(Script,'ppcarm');
+          {$ELSE} // Assume x64 (could also be PowerPC, other ARM I suppose)
+          write(Script,'ppcx64');
+          {$ENDIF CPUARMEL}
+        {$ENDIF CPU386}
+      {$ENDIF DARWIN}
       writeln(Script,' -n @',IncludeTrailingPathDelimiter(BinPath),'fpc.cfg $*');
       CloseFile(Script);
       FPChmod(FPCScript,&700);
@@ -1477,7 +1494,7 @@ begin
   if FInstalledCompiler = '' then
   begin
     //Assume we've got a working compiler. This will link through to the
-    //platform-specific compiler
+    //platform-specific CompilerName
     SetCompilerToInstalledCompiler;
   end;
 
@@ -1505,7 +1522,7 @@ begin
       // Don't call params with quotes
       // Directory parameters for make must not have trailing / or \
       Params.Add('FPC='+FInstalledCompiler+'');
-      //Should not be needed as we already copied binutils to fpc compiler dir
+      //Should not be needed as we already copied binutils to fpc CompilerName dir
       //Params.Add('CROSSBINDIR='+ExcludeTrailingPathDelimiter(MakeDirectory)); //Show make where to find the binutils
       Params.Add('--directory='+ExcludeTrailingPathDelimiter(LazarusDirectory));
       Params.Add('UPXPROG=echo'); //Don't use UPX
@@ -1530,7 +1547,7 @@ begin
       try
         //Don't call params with quotes
         Params.Add('FPC='+FInstalledCrossCompiler+'');
-        //Should not be needed as we already copied binutils to fpc compiler dir
+        //Should not be needed as we already copied binutils to fpc CompilerName dir
         //Params.Add('CROSSBINDIR='+ExcludeTrailingPathDelimiter(MakeDirectory)); //Show make where to find the binutils; TODO: perhaps replace with 64 bit version?
         Params.Add('--directory='+ExcludeTrailingPathDelimiter(LazarusDirectory));
         Params.Add('UPXPROG=echo'); //Don't use UPX
@@ -1564,7 +1581,7 @@ begin
       else
         Params.Add('FPC='+FInstalledCompiler);
       {$ENDIF MSWINDOWS}
-      //Should not be needed as we already copied binutils to fpc compiler dir
+      //Should not be needed as we already copied binutils to fpc CompilerName dir
       //Params.Add('CROSSBINDIR='+ExcludeTrailingPathDelimiter(MakeDirectory)); //Show make where to find the binutils
       Params.Add('--directory='+ExcludeTrailingPathDelimiter(LazarusDirectory));
       Params.Add('UPXPROG=echo'); //Don't use UPX
@@ -1594,11 +1611,11 @@ begin
     try
       try
         // FInstalledCompiler will be often something like c:\bla\ppc386.exe, e.g.
-        // the platform specific compiler. In order to be able to cross compile
+        // the platform specific CompilerName. In order to be able to cross compile
         // we'd rather use fpc
         {$IFDEF UNIX}
         LazarusConfig.CompilerFilename:=ExtractFilePath(FInstalledCompiler)+'fpc.sh';
-        {$ELSE}
+        {$ELSE} //presumably only Windows, Windows CE for now...
         LazarusConfig.CompilerFilename:=ExtractFilePath(FInstalledCompiler)+'fpc'+FExecutableExtension;
         {$ENDIF UNIX}
         LazarusConfig.LazarusDirectory:=LazarusDirectory;
@@ -1607,7 +1624,6 @@ begin
         LazarusConfig.MakeFilename:=FMakeDir+'make'+FExecutableExtension;
         {$ENDIF MSWINDOWS}
         {$IFDEF UNIX}
-        //todo: fix this for more variants?!?
         LazarusConfig.DebuggerFilename:=which('gdb'); //assume in path
         LazarusConfig.MakeFilename:=which('make'); //assume in path
         {$ENDIF UNIX}
@@ -1634,52 +1650,13 @@ begin
     try
       //Don't call params with quotes
       Params.Add('FPC='+FInstalledCompiler+'');
-      //Should not be needed as we already copied binutils to fpc compiler dir
+      //Should not be needed as we already copied binutils to fpc CompilerName dir
       //Params.Add('CROSSBINDIR='+FBinutilsDirNoBackslash+''); //Show make where to find the binutils
       Params.Add('--directory='+LazarusDirectory+'');
       Params.Add('UPXPROG=echo'); //Don't use UPX
       Params.Add('COPYTREE=echo'); //fix for examples in Win svn, see build FAQ
       Params.Add('bigide');
       infoln('Lazarus: running make bigide:');
-      if (Run(Executable, Params)) <> 0 then
-        OperationSucceeded := False;
-    finally
-      Params.Free;
-    end;
-  end;
-
-  if OperationSucceeded then
-  begin
-    // Build data desktop, nice example of building with lazbuild
-    Executable := LazarusDirectory + DirectorySeparator + 'lazbuild';
-    Params:=TStringList.Create;
-    try
-      //Do NOT pass quotes in params
-      Params.Add('--primary-config-path='+FLazarusPrimaryConfigPath+'');
-      Params.Add(''+LazarusDirectory+
-        'tools'+DirectorySeparator+
-        'lazdatadesktop'+DirectorySeparator+
-        'lazdatadesktop.lpr');
-      infoln('Lazarus: compiling data desktop:');
-      if (Run(Executable, Params)) <> 0 then
-        OperationSucceeded := False;
-    finally
-      Params.Free;
-    end;
-  end;
-
-  if OperationSucceeded then
-  begin
-    // Build Lazarus Doceditor
-    Executable := LazarusDirectory + DirectorySeparator + 'lazbuild';
-    Params:=TStringList.Create;
-    try
-      //Do NOT pass quotes in params
-      Params.Add('--primary-config-path='+FLazarusPrimaryConfigPath+'');
-      Params.Add(''+LazarusDirectory+
-        'doceditor'+DirectorySeparator+
-        'lazde.lpr');
-      infoln('Lazarus: compiling doc editor:');
       if (Run(Executable, Params)) <> 0 then
         OperationSucceeded := False;
     finally
@@ -1727,6 +1704,45 @@ begin
     {$ENDIF UNIX}
   end;
 
+  if OperationSucceeded then
+  begin
+    // Build data desktop, nice example of building with lazbuild
+    Executable := LazarusDirectory + DirectorySeparator + 'lazbuild';
+    Params:=TStringList.Create;
+    try
+      //Do NOT pass quotes in params
+      Params.Add('--primary-config-path='+FLazarusPrimaryConfigPath+'');
+      Params.Add(''+LazarusDirectory+
+        'tools'+DirectorySeparator+
+        'lazdatadesktop'+DirectorySeparator+
+        'lazdatadesktop.lpr');
+      infoln('Lazarus: compiling data desktop:');
+      if (Run(Executable, Params)) <> 0 then
+        OperationSucceeded := False;
+    finally
+      Params.Free;
+    end;
+  end;
+
+  if OperationSucceeded then
+  begin
+    // Build Lazarus Doceditor
+    Executable := LazarusDirectory + DirectorySeparator + 'lazbuild';
+    Params:=TStringList.Create;
+    try
+      //Do NOT pass quotes in params
+      Params.Add('--primary-config-path='+FLazarusPrimaryConfigPath+'');
+      Params.Add(''+LazarusDirectory+
+        'doceditor'+DirectorySeparator+
+        'lazde.lpr');
+      infoln('Lazarus: compiling doc editor:');
+      if (Run(Executable, Params)) <> 0 then
+        OperationSucceeded := False;
+    finally
+      Params.Free;
+    end;
+  end;
+
   Result := OperationSucceeded;
 end;
 
@@ -1734,16 +1750,16 @@ constructor Tinstaller.Create;
 begin
   // We'll set the bootstrap compiler to a file in the temp dir.
   // This won't exist so the CheckAndGetNeededExecutables code will download it for us.
-  // User can specify an existing compiler later on, if she wants to.
+  // User can specify an existing CompilerName later on, if she wants to.
   FBootstrapCompilerDirectory := SysUtils.GetTempDir;
   FShortCutNameFpcupIsSet:=false;
-  //Bootstrap compiler:
+  //Bootstrap CompilerName:
   {$IFDEF MSWINDOWS}
-  // On Windows, we can always compile 32 bit with a 64 bit cross compiler, regardless
+  // On Windows, we can always compile 32 bit with a 64 bit cross CompilerName, regardless
   // of actual architecture (x86 or x64)
   FBootstrapCompilerFTP :=
     'ftp.freepascal.org/pub/fpc/dist/2.6.0/bootstrap/i386-win32-ppc386.zip';
-  FCompilername := 'ppc386.exe';
+  FBootstrapCompilerName := 'ppc386.exe';
   FFPCPlatform:='i386-win32';
   {$ENDIF MSWINDOWS}
   {$IFDEF Linux}
@@ -1752,18 +1768,18 @@ begin
   {$IFDEF CPU386}
   FBootstrapCompilerFTP :=
     'ftp.freepascal.org/pub/fpc/dist/2.6.0/bootstrap/i386-linux-ppc386.bz2';
-  FCompilername := 'i386-linux-ppc386-1';
+  FBootstrapCompilerName := 'i386-linux-ppc386-1';
   FFPCPlatform:='i386-linux';
   {$ELSE}
   {$IFDEF cpuarmel}
   FBootstrapCompilerFTP :=
   'ftp.freepascal.org/pub/fpc/dist/2.6.0/bootstrap/arm-linux-ppcarm.bz2';
-  FCompilername := 'arm-linux-ppcarm';
+  FBootstrapCompilerName := 'arm-linux-ppcarm';
   FFPCPlatform:='arm-linux';
   {$ELSE} // Assume x64 (could also be PowerPC, ARM I suppose)
   FBootstrapCompilerFTP :=
   'ftp.freepascal.org/pub/fpc/dist/2.6.0/bootstrap/x86_64-linux-ppcx64.bz2';
-  FCompilername := 'x86_64-linux-ppcx64';
+  FBootstrapCompilerName := 'x86_64-linux-ppcx64';
   FFPCPlatform:='x86_64-linux';
   {$ENDIF cpuarmel}
   {$ENDIF CPU386}
@@ -1772,7 +1788,7 @@ begin
   //OSX
   FBootstrapCompilerFTP:=
     'ftp.freepascal.org/pub/fpc/dist/2.6.0/bootstrap/universal-darwin-ppcuniversal.tar.bz2';
-  FCompilername := 'ppcuniversal';
+  FBootstrapCompilerName := 'ppcuniversal';
   //check this:
   FFPCPlatform:='x64-OSX';
   {$ENDIF Darwin}
