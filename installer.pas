@@ -1426,8 +1426,12 @@ begin
       write(Script,IncludeTrailingPathDelimiter(FPCDirectory),'compiler/');
       {$IFDEF CPU386}
       write(Script,'ppc386');
+      {$ELSE}
+      {$IFDEF CPUARMEL}
+      write(Script,'ppcarm');
       {$ELSE} // Assume x64 (could also be PowerPC, ARM I suppose)
       write(Script,'ppcx64');
+      {$ENDIF CPUARMEL}
       {$ENDIF CPU386}
       writeln(Script,' -n @',IncludeTrailingPathDelimiter(BinPath),'fpc.cfg $*');
       CloseFile(Script);
@@ -1744,11 +1748,18 @@ begin
     'ftp.freepascal.org/pub/fpc/dist/2.6.0/bootstrap/i386-linux-ppc386.bz2';
   FCompilername := 'i386-linux-ppc386-1';
   FFPCPlatform:='i386-linux';
+  {$ELSE}
+  {$IFDEF cpuarmel}
+  FBootstrapCompilerFTP :=
+  'ftp.freepascal.org/pub/fpc/dist/2.6.0/bootstrap/arm-linux-ppcarm.bz2';
+  FCompilername := 'arm-linux-ppcarm';
+  FFPCPlatform:='arm-linux';
   {$ELSE} // Assume x64 (could also be PowerPC, ARM I suppose)
   FBootstrapCompilerFTP :=
   'ftp.freepascal.org/pub/fpc/dist/2.6.0/bootstrap/x86_64-linux-ppcx64.bz2';
   FCompilername := 'x86_64-linux-ppcx64';
-  FFPCPlatform:='x86_64';
+  FFPCPlatform:='x86_64-linux';
+  {$ENDIF cpuarmel}
   {$ENDIF CPU386}
   {$ENDIF Linux}
   {$IFDEF Darwin}

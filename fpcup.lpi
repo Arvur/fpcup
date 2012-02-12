@@ -137,9 +137,6 @@
       </Debugging>
     </Linking>
     <Other>
-      <Verbosity>
-        <ShowCond Value="True"/>
-      </Verbosity>
       <CompilerMessages>
         <UseMsgFile Value="True"/>
       </CompilerMessages>

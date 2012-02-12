@@ -1,10 +1,10 @@
 object Form1: TForm1
-  Left = 281
-  Height = 771
-  Top = 95
+  Left = 80
+  Height = 572
+  Top = 1
   Width = 899
   Caption = 'fpcup GUI'
-  ClientHeight = 771
+  ClientHeight = 572
   ClientWidth = 899
   LCLVersion = '0.9.31'
   object FPCOptionsGroup: TGroupBox
@@ -13,12 +13,12 @@ object Form1: TForm1
     Top = 168
     Width = 768
     Caption = 'FPCOptionsGroup'
-    ClientHeight = 142
+    ClientHeight = 141
     ClientWidth = 764
     TabOrder = 0
     object FPCDirectory: TDirectoryEdit
       Left = 142
-      Height = 23
+      Height = 27
       Top = 53
       Width = 96
       ShowHidden = False
@@ -29,32 +29,32 @@ object Form1: TForm1
     end
     object Label1: TLabel
       Left = 16
-      Height = 16
+      Height = 18
       Top = 48
-      Width = 72
+      Width = 88
       Caption = 'FPC directory'
       ParentColor = False
     end
     object Label2: TLabel
       Left = 14
-      Height = 16
+      Height = 18
       Top = 8
-      Width = 46
+      Width = 56
       Caption = 'FPC URL'
       ParentColor = False
     end
     object FPCRevision: TEdit
       Left = 399
-      Height = 23
+      Height = 27
       Top = 10
       Width = 80
       TabOrder = 1
     end
     object Label3: TLabel
       Left = 311
-      Height = 16
+      Height = 18
       Top = 10
-      Width = 45
+      Width = 56
       Caption = 'Revision'
       ParentColor = False
     end
@@ -68,10 +68,10 @@ object Form1: TForm1
     end
     object FPCURL: TComboBox
       Left = 142
-      Height = 23
+      Height = 29
       Top = 10
       Width = 120
-      ItemHeight = 15
+      ItemHeight = 0
       Items.Strings = (
         'http://svn.freepascal.org/svn/fpc/branches/fixes_2_6'
         'http://svn.freepascal.org/svn/fpc/tags/release_2_6_0/'
@@ -82,15 +82,15 @@ object Form1: TForm1
     end
     object Label4: TLabel
       Left = 311
-      Height = 16
+      Height = 18
       Top = 50
-      Width = 43
+      Width = 51
       Caption = 'Options'
       ParentColor = False
     end
     object FPCOptions: TEdit
       Left = 399
-      Height = 23
+      Height = 27
       Top = 50
       Width = 80
       TabOrder = 4
@@ -106,7 +106,8 @@ object Form1: TForm1
         '-gl (Line numbers)'
         '-gw2 (Dwarf2 debug info)'
       )
-      ItemHeight = 15
+      ItemHeight = 23
+      ScrollWidth = 174
       TabOrder = 5
     end
   end
@@ -139,12 +140,12 @@ object Form1: TForm1
     Top = 8
     Width = 769
     Caption = 'General options'
-    ClientHeight = 127
+    ClientHeight = 126
     ClientWidth = 765
     TabOrder = 3
     object FPCRevision2: TEdit
       Left = 182
-      Height = 23
+      Height = 27
       Hint = 'Name of the shortcut to the fpcup script (--fpcuplinkname)'
       Top = 16
       Width = 80
@@ -152,9 +153,9 @@ object Form1: TForm1
     end
     object Label5: TLabel
       Left = 14
-      Height = 16
+      Height = 18
       Top = 16
-      Width = 102
+      Width = 125
       Caption = 'FPCUp script name'
       ParentColor = False
     end
@@ -168,7 +169,7 @@ object Form1: TForm1
     end
     object FPCBootstrapDir: TDirectoryEdit
       Left = 182
-      Height = 23
+      Height = 27
       Hint = 'Directory where existing FPC compiler is or should be downloaded'
       Top = 48
       Width = 208
@@ -180,9 +181,9 @@ object Form1: TForm1
     end
     object Label6: TLabel
       Left = 14
-      Height = 16
+      Height = 18
       Top = 48
-      Width = 154
+      Width = 188
       Caption = 'Compiler bootstrap directory'
       ParentColor = False
     end
@@ -193,12 +194,12 @@ object Form1: TForm1
     Top = 336
     Width = 768
     Caption = 'Lazarus'
-    ClientHeight = 182
+    ClientHeight = 181
     ClientWidth = 764
     TabOrder = 4
     object LazarusDirectory: TDirectoryEdit
       Left = 141
-      Height = 23
+      Height = 27
       Top = 51
       Width = 96
       ShowHidden = False
@@ -209,32 +210,32 @@ object Form1: TForm1
     end
     object Label7: TLabel
       Left = 14
-      Height = 16
+      Height = 18
       Top = 48
-      Width = 90
+      Width = 113
       Caption = 'Lazarus directory'
       ParentColor = False
     end
     object Label8: TLabel
       Left = 14
-      Height = 16
+      Height = 18
       Top = 8
-      Width = 64
+      Width = 81
       Caption = 'Lazarus URL'
       ParentColor = False
     end
     object LazarusRevision: TEdit
       Left = 399
-      Height = 23
+      Height = 27
       Top = 10
       Width = 80
       TabOrder = 1
     end
     object Label9: TLabel
       Left = 311
-      Height = 16
+      Height = 18
       Top = 10
-      Width = 45
+      Width = 56
       Caption = 'Revision'
       ParentColor = False
     end
@@ -248,10 +249,10 @@ object Form1: TForm1
     end
     object LazarusURL: TComboBox
       Left = 141
-      Height = 23
+      Height = 29
       Top = 8
       Width = 120
-      ItemHeight = 15
+      ItemHeight = 0
       Items.Strings = (
         'http://svn.freepascal.org/svn/fpc/branches/fixes_2_6'
         'http://svn.freepascal.org/svn/fpc/tags/release_2_6_0/'
@@ -262,15 +263,15 @@ object Form1: TForm1
     end
     object Label10: TLabel
       Left = 311
-      Height = 16
+      Height = 18
       Top = 50
-      Width = 43
+      Width = 51
       Caption = 'Options'
       ParentColor = False
     end
     object LazarusOptions: TEdit
       Left = 399
-      Height = 23
+      Height = 27
       Top = 50
       Width = 80
       TabOrder = 4
@@ -286,20 +287,21 @@ object Form1: TForm1
         '-gl (Line numbers)'
         '-gw2 (Dwarf2 debug info)'
       )
-      ItemHeight = 15
+      ItemHeight = 23
+      ScrollWidth = 174
       TabOrder = 5
     end
     object Label11: TLabel
       Left = 14
-      Height = 16
+      Height = 18
       Top = 96
-      Width = 64
+      Width = 75
       Caption = 'Config path'
       ParentColor = False
     end
     object LazarusPrimaryConfigPath: TDirectoryEdit
       Left = 141
-      Height = 23
+      Height = 27
       Top = 96
       Width = 96
       ShowHidden = False
@@ -310,18 +312,18 @@ object Form1: TForm1
     end
     object LazarusLinkName: TEdit
       Left = 141
-      Height = 23
+      Height = 27
       Top = 128
       Width = 80
       TabOrder = 7
     end
     object Label12: TLabel
       Left = 14
-      Height = 16
+      Height = 18
       Top = 128
-      Width = 95
+      Width = 120
       Caption = 'Lazarus link name'
       ParentColor = False
     end
   end
-end
+end
