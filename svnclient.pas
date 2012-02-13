@@ -179,9 +179,9 @@ var
   RetryAttempt: integer;
 begin
   if FRevision='' then
-    Command := 'checkout --revision HEAD ' + Repository + ' ' + LocalRepository
+    Command := 'checkout --non-interactive --revision HEAD ' + Repository + ' ' + LocalRepository
   else
-    Command := 'checkout -r '+ FRevision+ ' ' + Repository + ' ' + LocalRepository;
+    Command := 'checkout --non-interactive -r '+ FRevision+ ' ' + Repository + ' ' + LocalRepository;
   ExecuteSVNCommand(Command);
   // If command fails, e.g. due to misconfigured firewalls blocking ICMP etc, retry a few times
   RetryAttempt := 1;
@@ -242,9 +242,9 @@ var
 begin
   StartRevision := LocalRevision;
   if FRevision='' then
-    Command := 'update ' + LocalRepository
+    Command := 'update --non-interactive ' + LocalRepository
   else
-    Command := 'update -r ' + FRevision + ' ' + LocalRepository;
+    Command := 'update --non-interactive -r ' + FRevision + ' ' + LocalRepository;
   ExecuteSVNCommand(Command);
   // If command fails, e.g. due to misconfigured firewalls blocking ICMP etc, retry a few times
   RetryAttempt := 1;

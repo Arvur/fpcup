@@ -113,6 +113,7 @@ begin
   FSVNClient.Repository := FPCURL;
   FSVNClient.Revision:=FFPCRevision;
   StartRevision:=FSVNClient.LocalRevision;
+  FSVNClient.Revert;
   FSVNClient.CheckOutOrUpdate;
   if FSVNClient.LocalRevision<>StartRevision then FUpdated:=true else FUpdated:=false;
   Result := True;
@@ -124,6 +125,7 @@ var
 begin
   StartRevision:=-1;
   FSVNClient.LocalRepository := LazarusDirectory;
+  FSVNClient.Revert;
   FSVNClient.Repository := FLazarusURL;
   StartRevision:=FSVNClient.LocalRevision;
   FSVNClient.Revision:=FLazarusRevision;
