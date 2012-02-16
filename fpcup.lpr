@@ -74,9 +74,8 @@ begin
   writeln(' fpcuplinkname=<name>  Name of the shortcut to the fpcup script.');
   writeln('                       On Windows: a desktop shortcut.');
   writeln('                       On other systems: a shell script in your home directory.');
-  writeln('                       If not specified, no shortcut will be produced.');
-  writeln('                       If empty specified, the shortcut will be ');
-  writeln('                       Fpcup_update.');
+  writeln('                       If empty specified, no shortcut will be produced.');
+  writeln('                       Default: fpcup_update');
   writeln(' lazdir=<dir>          Target Lazarus dir, default c:\development\lazarus\');
   writeln(' lazlinkname=<name>    Name of the shortcut to the Lazarus install.');
   writeln('                       On Windows: a desktop shortcut.');
@@ -132,7 +131,7 @@ var
 begin
   // Default values
   FInstaller.ShortCutName:='Lazarus_trunk';
-  //don't initialise ShortCutNameFpcup !!!
+  FInstaller.ShortCutNameFpcup:='fpcup_update';
   FInstaller.FPCURL := 'http://svn.freepascal.org/svn/fpc/branches/fixes_2_6';
   FInstaller.FPCOPT:='';
   FInstaller.LazarusPrimaryConfigPath:=''; //Let installer figure out default value
@@ -264,22 +263,19 @@ begin
   bNoConfirm:=Application.HasOption(NoConfirm);
 
   // FpcupLinkName has to be the last since here we store AllOptions !!
-  // AllOptions is rebuild in this clumsy way because we lost the quotes in paramstr()
+  // AllOptions is rebuilt in this clumsy way because we lost the quotes in paramstr()
   // and need them for option sequences, weird paths, etc.
 
-  FPCUpLink:='';
   if Application.HasOption(FpcupLinkName) then
   begin
-    FPCUpLink:=Application.GetOptionValue(FpcupLinkName);
-    AllOptions:=AllOptions+'--'+FpcupLinkName+'="'+FPCUpLink+'" ';
-    FInstaller.AllOptions:=AllOptions;
-    if FPCUpLink='' then
-      if FInstaller.ShortCutName='' then
-        FPCUpLink:='fpcup_update'
-      else
-        FPCUpLink:=FInstaller.ShortCutName+'_update';
+    FpcupLink:=Application.GetOptionValue(FPCUpLinkName);
     FInstaller.ShortCutNameFpcup:=FPCUpLink;
   end;
+  if FInstaller.ShortCutNameFPCUp<>EmptyStr then
+  begin
+    AllOptions:=AllOptions+'--'+FpcupLinkName+'="'+FPCUpLink+'" ';
+  end;
+
 
   writeln('');
   writeln('Options:');

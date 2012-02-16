@@ -69,7 +69,6 @@ type
     {$IFDEF MSWINDOWS}
     FMakeDir: string;
     {$ENDIF}
-    FShortCutNameFpcupIsSet:boolean; //indicates if ShortCutNameFpcupSet was set
     FSkipFPC: boolean;
     FSkipLazarus: boolean;
     FSkipLazarusHelp: boolean;
@@ -129,6 +128,7 @@ type
   public
     property ShortCutName: string read FShortcutName write FShortcutName; //Name of the shortcut to Lazarus. If empty, no shortcut is generated.
     property ShortCutNameFpcup:string read FShortCutNameFpcup write SetShortCutNameFpcup;
+    // Name for shortcut/shellscript linking to fpcup, useful to update without retyping options
     property CompilerName: string read GetCompilerName;
     //Name only of installed compiler
     property AllOptions:string read FAllOptions write SetAllOptions;
@@ -1381,7 +1381,6 @@ end;
 
 procedure TInstaller.SetShortCutNameFpcup(AValue: string);
 begin
-  FShortCutNameFpcupIsSet:=true;
   if FShortCutNameFpcup=AValue then Exit;
   FShortCutNameFpcup:=AValue;
 end;
@@ -1851,8 +1850,7 @@ begin
         Params.Add('LCL_PLATFORM=win32');
         Params.Add('OS_TARGET=win64');
         Params.Add('CPU_TARGET=x86_64');
-        Params.Add('clean'); //make clean
-        Params.Add('lcl'); //make lcl
+        Params.Add('lcl'); //make lcl; no need to run clean as distclean has been run before
         infoln('Lazarus: running make LCL crosscompiler:');
         // Note: consider this optional; don't fail the function if this fails.
         if Run(Executable, Params, CustomPath)<> 0 then infoln('Problem compiling 64 bit LCL; continuing regardless.');
@@ -1991,7 +1989,7 @@ begin
         // To installed lazarus
         CreateDesktopShortCut(FInstalledLazarus,'--pcp="'+FLazarusPrimaryConfigPath+'"',ShortCutName);
         // To fpcup itself, with all options as passed when invoking it:
-        if FShortCutNameFpcupIsSet then
+        if ShortCutNameFpcup<>EmptyStr then
           CreateDesktopShortCut(paramstr(0),AllOptions,ShortCutNameFpcup);
       finally
         //Ignore problems creating shortcut
@@ -2090,8 +2088,6 @@ begin
   // This won't exist so the CheckAndGetNeededExecutables code will download it for us.
   // User can specify an existing CompilerName later on, if she wants to.
   FBootstrapCompilerDirectory := SysUtils.GetTempDir;
-  FShortCutNameFpcupIsSet:=false;
-  //Bootstrap CompilerName:
   {$IFDEF MSWINDOWS}
   // On Windows, we can always compile 32 bit with a 64 bit cross CompilerName, regardless
   // of actual architecture (x86 or x64)
@@ -2135,6 +2131,8 @@ begin
   {$ELSE}
   FExecutableExtension := '';
   {$ENDIF MSWINDOWS}
+  FShortcutName:='Lazarus_trunk'; //Default shortcut name; if it's not empty, shortcut will be written.
+  FShortCutNameFpcup:='fpcup_update'; //Default shortcut name; if it's not empty, shortcut will be written.
   // Binutils needed for compilation
   CreateBinutilsList;
 
