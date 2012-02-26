@@ -300,7 +300,14 @@ end;
 
 function TSequencer.DoConfigModule(ModuleName: string): boolean;
 begin
-  result:= GetInstaller(ModuleName) and (Installer as TLazarusInstaller).ConfigLazarus(FParent.LazarusPrimaryConfigPath);
+  result:= GetInstaller(ModuleName);
+  if result and (Installer is TLazarusInstaller) then
+    result:=(Installer as TLazarusInstaller).ConfigLazarus(FParent.LazarusPrimaryConfigPath)
+  else
+    begin
+    result:=false;
+    FParent.WritelnLog('Error: Calling ConfigModule on : ' + ModuleName);
+    end;
 end;
 
 function TSequencer.DoExec(FunctionName: string): boolean;
@@ -350,7 +357,12 @@ begin
   if UpperCase(FunctionName)='CREATEFPCUPSCRIPT' then
     result:=CreateFpcupScript
   else if UpperCase(FunctionName)='CREATELAZARUSSCRIPT' then
-    result:=CreateLazarusScript;
+    result:=CreateLazarusScript
+  else
+    begin
+    result:=false;
+    FParent.WritelnLog('Error: Trying to execute a non existing function: ' + FunctionName);
+    end;
 end;
 
 function TSequencer.DoGetModule(ModuleName: string): boolean;
@@ -688,6 +700,7 @@ begin
   if not assigned(FParent.ModuleList) then
     begin
     result:=false;
+    FParent.WritelnLog('Error: No sequences loaded when trying to find' + SequenceName);
     exit;
     end;
   idx:=FParent.ModuleList.IndexOf(Uppercase(SequenceName));
@@ -740,7 +753,10 @@ begin
       end;
     end
   else
+    begin
     result:=false;  // sequence not found
+    FParent.WritelnLog('Error: Failed to load sequence :' + SequenceName);
+    end;
 end;
 
 constructor TSequencer.Create;
