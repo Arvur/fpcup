@@ -110,7 +110,7 @@ begin
         end;
       end;
   // correct path delimiter
-  if pos('URL',Key)<=0 then
+  if (pos('URL',Key)<=0) and (pos('ADDTO',Key)<>1)then
     begin
     for i:=1 to length(s) do
       if (s[i]='/') or (s[i]='\') then
@@ -206,11 +206,11 @@ var
   function AddToLazXML(xmlfile:string):boolean;
   var
     i,j,k:integer;
-    exec,key,counter,filename:string;
-    bdirty:boolean;
+    exec,key,counter,oldcounter,filename:string;
     count:integer;
   begin
   filename:=xmlfile+'.xml';
+  oldcounter:='';
   for i:=1 to MAXINSTRUCTIONS do
     begin
     exec:=GetValue('AddTo'+xmlfile+IntToStr(i),sl);
@@ -229,8 +229,13 @@ var
     else //we got a counter
       begin
       counter:= trim(copy(key,k+1,length(key)));
-      key:=trim(copy(key,1,j-1));
-      count:=ULC.GetVariable(filename,counter,0);
+      key:=trim(copy(key,1,k-1));
+      if oldcounter<>counter then //read write counter only once
+        begin
+        count:=ULC.GetVariable(filename,counter,0)+1;
+        ULC.SetVariable(filename,counter,count);
+        oldcounter:=counter;
+        end;
       k:=pos('#',key);
       while k>0 do
         begin //replace # with count
@@ -242,7 +247,6 @@ var
       end;
     if not result then
       break;
-    bdirty:=true;
     end;
   end;
 
