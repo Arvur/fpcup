@@ -428,7 +428,7 @@ function TSequencer.DoExec(FunctionName: string): boolean;
 
       InstalledLazarus:=IncludeTrailingPathDelimiter(FParent.LazarusDirectory)+'lazarus'+GetExeExt;
       {$IFDEF MSWINDOWS}
-//todo      DeleteDesktopShortCut(InstalledLazarus,'--pcp="'+FParent.LazarusPrimaryConfigPath+'"',FParent.ShortCutName);
+      DeleteDesktopShortCut(FParent.ShortCutName);
       {$ENDIF MSWINDOWS}
       {$IFDEF UNIX}
       DeleteFileUTF8(FParent.ShortcutName);

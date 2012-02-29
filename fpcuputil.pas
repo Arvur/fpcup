@@ -40,6 +40,8 @@ uses
 procedure CreateDesktopShortCut(Target, TargetArguments, ShortcutName: string) ;
 // Create shell script in ~ directory that links to Target
 procedure CreateHomeStartLink(Target, TargetArguments, ShortcutName: string);
+// Delete shortcut on desktop
+procedure DeleteDesktopShortcut(ShortcutName: string);
 // Delete directory and children, even read-only. Equivalent to rm -rf <directory>
 function DeleteDirectoryEx(DirectoryName: string): boolean;
 // Download from HTTP (includes Sourceforge redirection support) or FTP
@@ -370,6 +372,19 @@ begin
   finally
     FreeAndNil(Buffer);
   end;
+end;
+
+procedure DeleteDesktopShortcut(ShortcutName: string);
+var
+  PIDL: PItemIDList;
+  InFolder: array[0..MAX_PATH] of Char;
+  LinkName: WideString;
+begin
+  { Get the desktop location }
+  SHGetSpecialFolderLocation(0, CSIDL_DESKTOPDIRECTORY, PIDL);
+  SHGetPathFromIDList(PIDL, InFolder);
+  LinkName := InFolder + PathDelim + ShortcutName+'.lnk';
+  SysUtils.DeleteFile(LinkName);
 end;
 
 function DeleteDirectoryEx(DirectoryName: string): boolean;
