@@ -124,7 +124,7 @@ begin
         else macro:=GetValue(macro,sl,recursion+1); //user defined value
         // quote if containing spaces
         if pos(' ',macro)>0 then
-          macro:=''''+macro+'''';
+          macro:='"'+macro+'"';
         delete(s,i,len);
         insert(macro,s,i);
         end;
@@ -176,8 +176,11 @@ begin
         j:=j+1;
         if exec[j]=' ' then break;
         end;
-      PE.Executable:=trim(copy(exec,1,j));
-      PE.ParametersString:=trim(copy(exec,j,length(exec)));
+      //PE.Executable:=trim(copy(exec,1,j));
+      //PE.ParametersString:=trim(copy(exec,j,length(exec)));
+      //fails because of double quoting ex: --primary-config-path="C:\Documents and Settings\Ludo\Local Settings\Application Data\lazarusdevsettings"
+      //todo Rewrite Tprocess
+      PE.CommandLine:=exec;
       PE.ShowWindow := swoHIDE;
       if FVerbose then
         PE.OnOutput:=@DumpConsole;
