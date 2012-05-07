@@ -245,13 +245,14 @@ begin
         // and set FSVNClient.SVNExecutable if succesful
         OperationSucceeded := DownloadSVN;
       end;
-      {$ELSE}
+      {$ENDIF}
+
+      // Regardless of platform, SVN should now be either set up correctly or we should give up.
       if FSVNClient.SVNExecutable = '' then
       begin
         infoln('Could not find SVN executable. Please make sure it is installed.',error);
         OperationSucceeded := false;
       end;
-      {$ENDIF}
     end;
   end;
 
