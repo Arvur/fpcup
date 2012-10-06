@@ -376,9 +376,13 @@ begin
   // Debugger support files
   // On changes, please update debugger list in DownloadBinUtils:
   FBinUtils.Add('libexpat-1.dll');
+  {
+  http://svn.freepascal.org/svn/lazarus/binaries/i386-win32/gdb/bin/
+  only has libexpat-1, so no need for these:
   FBinUtils.Add('libgcc_s_dw2-1.dll');
   FBinUtils.Add('libiconv-2.dll');
   FBinUtils.Add('libintl-8.dll');
+  }
   {$endif win32}
   {$ifdef win64}
   // Debugger support files:
