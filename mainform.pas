@@ -4,6 +4,8 @@ unit mainform;
 
 {$DEFINE NOCONSOLE} //Please define this in project options so fpcuputil etc will not use writeln
 
+//working on highlighter
+{.$DEFINE HLREADY}
 //to do: highlighting log
 (*
   Highlights:
@@ -22,7 +24,9 @@ uses
   Classes, SysUtils, FileUtil, SynMemo, SynHighlighterIni, SynEdit, Forms,
   Controls, Graphics, Dialogs, StdCtrls, EditBtn, ComCtrls, ExtCtrls, ValEdit,
   Menus, inifiles, processutils, process, fpcuputil, strutils, LCLIntf, LCLType,
-  zipper, svnclient, SynEditKeyCmds, fpcuploghighlighter;
+  zipper, svnclient, SynEditKeyCmds
+  {$IFDEF HLREADY}, fpcuploghighlighter {$ENDIF}
+  ;
 
 type
 
@@ -84,8 +88,10 @@ type
   private
     // Currently loaded ini file:
     FCurrentINIFile: string;
+    { wip
     // Highlighter for fpcup log output
     FSynFPCupLogHL: TSynfpcuplogFold;
+    }
     // Delete .ppu, .a., .o files recursively from RootDirectory without warning
     function DeletePPUs(RootDirectory: string): boolean;
     // Gets fpcup executable full path if possible
@@ -158,8 +164,10 @@ var
   FPCUPLocation: string;
   UpProc: TProcessEx;
 begin
+  {$IFDEF HLREADY}
   FSynFPCupLogHL:=TSynfpcuplogFold.Create(Self);
   OutputMemo.Highlighter:=FSynFPCupLogHL;
+  {$ENDIF}
 
   SaveDialog.InitialDir:=ExtractFilePath(ParamStr(0)); //application directory
   // Extract settings.ini if necessary
