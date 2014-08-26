@@ -203,6 +203,7 @@ type
 
   TFPCupManager=class(Tobject)
   private
+    FSVNDirectory: string;
     FHTTPProxyHost: string;
     FHTTPProxyPassword: string;
     FHTTPProxyPort: integer;
@@ -256,6 +257,7 @@ type
     // Write msg to log with line ending. Can also write to console
     procedure WritelnLog(msg:string;ToConsole:boolean=true);
  public
+    property SVNDirectory: string read FSVNDirectory write FSVNDirectory; // Path to svn.exe
     property ShortCutNameLazarus: string read FShortCutNameLazarus write FShortCutNameLazarus; //Name of the shortcut that points to the fpcup-installed Lazarus
     property ShortCutNameFpcup:string read FShortCutNameFpcup write FShortCutNameFpcup; //Name of the shortcut that points to fpcup
     property CompilerName: string read FCompilerName write FCompilerName;
@@ -964,6 +966,7 @@ begin
         FInstaller.Compiler:=FParent.CompilerName;
     end;
 
+  FInstaller.SVNDirectory:=FParent.SVNDirectory;
   FInstaller.HTTPProxyHost:=FParent.HTTPProxyHost;
   FInstaller.HTTPProxyPort:=FParent.HTTPProxyPort;
   FInstaller.HTTPProxyUser:=FParent.HTTPProxyUser;

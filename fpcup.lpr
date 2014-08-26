@@ -124,6 +124,7 @@ begin
   writeln('Options are not required; they include:');
   writeln(' help                  Show this text');
   writeln('');
+  writeln(' svndir=<dir>          Subversion directory to use.');
   writeln(' binutilsdir=<dir>     Windows only:');
   writeln('                       Directory where make, patch etc');
   writeln('                       (the binutils) are located. If make does not');
@@ -375,6 +376,9 @@ begin
       FInstaller.FPCDirectory:=ExcludeTrailingPathDelimiter(ExpandFileNameUTF8(Options.GetOption('','fpcdir',sInstallDir+'/fpc')));
       FInstaller.LazarusDirectory:=ExcludeTrailingPathDelimiter(ExpandFileNameUTF8(Options.GetOption('','lazdir',sInstallDir+'/lazarus')));
       {$ENDIF MSWINDOWS}
+      FInstaller.SVNDirectory:=Options.GetOption('','svndir','');
+      if (FInstaller.SVNDirectory <> '') then
+        FInstaller.SVNDirectory:=ExcludeTrailingPathDelimiter(ExpandFileNameUTF8(FInstaller.SVNDirectory));
 
       sLogFile:=Options.GetOption('','logfilename','',true);
       if sLogFile='' then
@@ -660,6 +664,8 @@ begin
       writeln('Binutils/make dir:      '+FInstaller.MakeDirectory);
       {$ENDIF MSWINDOWS}
       writeln('Bootstrap compiler dir: '+FInstaller.BootstrapCompilerDirectory);
+      if (FInstaller.SVNDirectory <> '') then
+        writeln('Subverion directory:    '+FInstaller.SVNDirectory);
       writeln('Lazarus shortcut name:  '+FInstaller.ShortCutNameLazarus);
       writeln('Shortcut fpcup name:    '+FInstaller.ShortCutNameFpcup);
       writeln('FPC URL:                '+FInstaller.FPCURL);

@@ -133,6 +133,7 @@ type
     // Sets the search/binary path to NewPath or adds NewPath before or after existing path:
     procedure SetPath(NewPath: string; Prepend: boolean; Append: boolean);
   public
+    property SVNDirectory: string read FSVNDirectory write FSVNDirectory;
     // Get processerrors and put them into FErrorLog
     procedure ProcessError(Sender:TProcessEx;IsException:boolean);
     // base directory for installation (fpcdir, lazdir,... option)
@@ -1148,6 +1149,8 @@ begin
   FGitClient := TGitClient.Create;
   FHGClient := THGClient.Create;
   FSVNClient := TSVNClient.Create;
+  if (FSVNDirectory <> '') then
+    FSVNClient.RepoExecutable := FSVNDirectory;
   // List of binutils that can be downloaded:
   CreateBinutilsList;
   FNeededExecutablesChecked:=false;
